@@ -1,0 +1,211 @@
+{
+  "name": "AI Internship Applier",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "11w3hoTb72qGYkatUOfuWCu3q-QpcT5lgsz3qqb7looQ",
+          "mode": "list",
+          "cachedResultName": "My Job Applications",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11w3hoTb72qGYkatUOfuWCu3q-QpcT5lgsz3qqb7looQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11w3hoTb72qGYkatUOfuWCu3q-QpcT5lgsz3qqb7looQ/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        -880,
+        -400
+      ],
+      "id": "713747cc-0987-4b66-9da0-df247ba67768",
+      "name": "Google Sheets Trigger1",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "5mYAplD7VZRlSwV0",
+          "name": "Google Sheets Trigger account 7567"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a B.Tech student applying for a software development internship.\nGiven your name, the internship role you're applying for, and optionally your Details, experience, and skills — write a short, polite, confident and ready-to-send email introducing yourself and expressing interest in the internship opportunity.\nKeep the tone enthusiastic but formal. Mention that you're eager to learn and contribute, and that you're looking forward to hearing back. End the email with a thank you and your name.\nUse \"Dear Hiring Manager\" as the greeting. Do not include any placeholder text, brackets, or variables that need to be filled in. The email should be complete and ready to send as-is.\nHere is your information:\nName:  {{ $json['Full Name'] }}\nto: {{ $json.HiringManagerEmail }}\nInternship Role:  {{ $json['Position Applied'] }}\nDetails:  {{ $json.Details }}\nExperience:  {{ $json['Experience (Years)'] }}\nSkills:{{ $json.Skills }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -624,
+        -400
+      ],
+      "id": "828d471b-f4ed-4ea1-9c32-466c5b52338d",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.1-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -656,
+        -176
+      ],
+      "id": "a309ea77-84bd-4472-9b50-7842dcd78ee3",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ARhbwmaQo8xqjzRr",
+          "name": "Google Gemini(PaLM) Api account 101607"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"to\": \"hr@examplecompany.com\",\n  \"subject\": \"Application for Frontend Developer Internship\",\n  \"body\": \"Dear HR Team,\\n\\nI hope this message finds you well. My name is Ananya Reddy, and I am currently pursuing my B.Tech. I am writing to express my interest in the Frontend Developer Internship position at your company.\\n\\nI'm learning HTML, CSS, and JavaScript, and I’m excited to build web apps and strengthen my development skills. Although I have about 0.5 years of hands-on practice, I am eager to contribute, learn, and grow in a real-world development environment.\\n\\nThank you for considering my application. I look forward to the opportunity to contribute and learn as part of your team.\\n\\nBest regards,\\nAnanya Reddy\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -528,
+        -176
+      ],
+      "id": "b2acec11-eb17-4260-ab3f-316e895bca9c",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        32
+      ],
+      "id": "ab08150d-18cb-496d-97f8-93b99c8cfc72",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "DLitm8BWEEJbzlDy",
+          "name": "Google Gemini(PaLM) Api account 101609"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.output.to }}",
+        "subject": "={{ $json.output.subject }}",
+        "emailType": "text",
+        "message": "={{ $json.output.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        -160,
+        -400
+      ],
+      "id": "2173b1b4-40bf-4211-a8e9-4a5c049d9e83",
+      "name": "Send a message",
+      "webhookId": "90a868ed-4a77-4720-b979-392a4bc85f8a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "GuGecjkPW8FTSUi4",
+          "name": "Gmail account 5859"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Sheets Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "5bfacaca-f039-4e11-8574-cda619811b3e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "969257b09ad2942bbaff2e2288304f4969030574d109cdeca05bf11f630884df"
+  },
+  "id": "CgjroJ3e6fRmfH3k",
+  "tags": []
+}
